@@ -6,11 +6,11 @@ pipeline {
         jdk 'JDK11'      // Must match JDK name in Jenkins
     }
 
-    environment {
-        PATH = "/opt/maven/bin:${env.PATH}"  // Ensure mvn command works
-        TOMCAT_HOME = "/usr/share/tomcat9"
-        APP_NAME = "petclinic"
-    }
+   environment {
+    PATH = "/opt/maven/bin:${env.PATH}"   // Maven path
+    TOMCAT_HOME = "/opt/tomcat"          // Tomcat path
+    APP_NAME = "petclinic"
+}
 
     stages {
         stage('Checkout') {
@@ -25,14 +25,14 @@ pipeline {
             }
         }
 
-        stage('Deploy to Tomcat') {
-            steps {
-                sh '''
-                cp target/*.war $TOMCAT_HOME/webapps/$APP_NAME.war
-                sudo systemctl restart tomcat9
-                '''
-            }
-        }
+      stage('Deploy to Tomcat') {
+    steps {
+        sh '''
+        cp target/*.war $TOMCAT_HOME/webapps/$APP_NAME.war
+        systemctl restart tomcat.service
+        '''
+    }
+}
     }
 
     post {
