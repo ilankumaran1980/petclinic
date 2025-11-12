@@ -2,15 +2,13 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3'   // Must match Maven name in Jenkins
-        jdk 'JDK11'      // Must match JDK name in Jenkins
+        jdk 'JDK11'        // Your configured JDK in Jenkins
+        maven 'Maven3'     // Your configured Maven in Jenkins
     }
 
-   environment {
-    PATH = "/opt/maven/bin:${env.PATH}"   // Maven path
-    TOMCAT_HOME = "/opt/tomcat"          // Tomcat path
-    APP_NAME = "petclinic"
-}
+    environment {
+        TOMCAT_HOME = '/opt/tomcat'  // Your Tomcat installation path
+    }
 
     stages {
         stage('Checkout') {
@@ -21,22 +19,29 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                dir('spring-petclinic') {       // Change to the folder with pom.xml
+                    sh './mvnw clean package -DskipTests'
+                }
             }
         }
 
-      stage('Deploy to Tomcat') {
-    steps {
-        sh '''
-        cp target/*.war $TOMCAT_HOME/webapps/$APP_NAME.war
-        systemctl restart tomcat.service
-        '''
-    }
-}
+        stage('Deploy to Tomcat') {
+            steps {
+                dir('spring-petclinic/target') {
+                    sh """
+                    cp *.war ${TOMCAT_HOME}/webapps/
+                    """
+                }
+            }
+        }
     }
 
     post {
-        success { echo 'Deployment completed successfully!' }
-        failure { echo 'Deployment failed. Check logs!' }
+        success {
+            echo "Build & Deployment Successful!"
+        }
+        failure {
+            echo "Build or Deployment Failed. Check logs!"
+        }
     }
 }
