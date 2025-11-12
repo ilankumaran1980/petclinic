@@ -17,6 +17,14 @@ pipeline {
             }
         }
 
+        stage('Prepare Maven Wrapper') {
+            steps {
+                dir('spring-petclinic') {
+                    sh 'chmod +x mvnw'
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 dir('spring-petclinic') {       // Change to the folder with pom.xml
@@ -24,13 +32,6 @@ pipeline {
                 }
             }
         }
-        stage('Make Maven Wrapper Executable') {
-    steps {
-        dir('spring-petclinic') {
-            sh 'chmod +x mvnw'
-        }
-    }
-}
 
         stage('Deploy to Tomcat') {
             steps {
